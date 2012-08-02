@@ -17,18 +17,13 @@ import Text.Blaze.Html5.Attributes
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
-index :: SpotsConf -> Html
-index conf = html (do
+{-# NOINLINE index #-}
+index :: Html
+index = html (do
     head (do
         H.title "some kind of title should go here I guess"
         link ! href "Spots.css" ! rel "stylesheet")
     body (do
-        toHtml . unsafePerformIO $ (thumbs conf (rootDir conf))))   -- FIXME unsafe IO
-
-thumbs :: SpotsConf -> FilePath -> IO [Html]
-thumbs conf path = do
-    fileList <- getDirectoryContents path
-    return (map (thumb conf) (filter isValid fileList)) where
-            isValid file = or [isImage file,
-                        and [unsafePerformIO (isDirectory file),    -- FIXME unsafe IO
-                       (not (isSpecial conf file))]]
+        spotsHeader
+        div $ do
+            toHtml . unsafePerformIO $ (thumbs (rootDir spotsConf))))   -- FIXME unsafe IO
