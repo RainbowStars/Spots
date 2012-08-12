@@ -2,7 +2,7 @@
 {-# OPTIONS_GHC -XFlexibleContexts#-}
 module Main where
 
---import Image
+import Image
 import Template
 import Types
 

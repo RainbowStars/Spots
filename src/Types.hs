@@ -51,6 +51,7 @@ defaultSpotsConf = SpotsConf {
 spotsConfIO :: IORef SpotsConf
 spotsConfIO = unsafePerformIO (newIORef (defaultSpotsConf))
 
+-- ugly top-level unsafePerformIO hack for the global config file
 {-# NOINLINE spotsConf #-}
 spotsConf :: SpotsConf
 spotsConf = unsafePerformIO (readIORef spotsConfIO)
@@ -75,13 +76,10 @@ imageType file = case extension of
     "png"   -> Just PNG
     _       -> Nothing
     where
-        extension = let
+        extension = let -- redefine tail so that tail [] doesn't throw an exception
             tail [] = []
             tail xs = Prelude.tail xs in
                 toLowerS (tail (takeExtension file))
-
-isDirectory :: FilePath -> IO Bool
-isDirectory path = doesDirectoryExist path
 
 isImage :: FilePath -> Bool
 isImage file = case imageType file of
@@ -95,5 +93,7 @@ isSpecial path = or (map (path ==) [
     ".DS_Store",
     (thumbsDir spotsConf)])
 
-toLowerS :: String -> String
+isValidImageOrDirectory file = or [isImage file, and [unsafePerformIO (doesDirectoryExist file), (not (isSpecial file))]]
+
+toLowerS :: (String -> String)
 toLowerS = map toLower

@@ -21,14 +21,12 @@ thumbs :: FilePath -> IO [Html]
 thumbs path = do
     fileList <- getDirectoryContents path
     return (map thumb (filter isValid fileList)) where
-            isValid file = or [
-                isImage file,
-                and [
-                    unsafePerformIO (isDirectory file),    -- FIXME unsafe IO
-                    (not (isSpecial file))]]
+            isValid file = or [isImage file,
+                               and [unsafePerformIO (doesDirectoryExist file),    -- FIXME unsafe IO
+                                    (not (isSpecial file))]]
 
 -- html for a single thumbnail box containing thumbnail and caption
-{-# NOINLINE thumb #-}
+--{-# NOINLINE thumb #-}
 thumb :: FilePath -> Html
 thumb file = do
     div ! id "thumb" $ do
